@@ -17,22 +17,22 @@ endianness=`echo -n I | hexdump -o | awk '{ print (substr($2,6,1)=="1") ? "le" :
 elif [ "$arch_" == "riscv64" ]; then
 arch=riscv64
 else
-echo "The architecture of the current machine is ${arch_}${endianness} , the schema code built into the script may not match your machine, please leave a comment on this issue so that the author can modify the script in time: https://github.com/CH3NGYZ/tailscale-openwrt/issues/6"
+echo "当前机器的架构是 ${arch_}${endianness} , 脚本内置的架构代码可能不符合您的机器, 请在这个issue留下评论以便作者及时修改脚本: https://github.com/CH3NGYZ/tailscale-openwrt/issues/6"
 exit 1
 fi
 
 if [ -e /tmp/tailscaled ]; then
-        echo "Residue exists, uninstall it, restart your machine and try again"
+        echo "存在残留, 请卸载并重启后重试"
         exit 1
 fi
 
 # opkg update
 opkg install libustream-openssl ca-bundle kmod-tun
-echo "If the package fails to be installed, manually run the following command to install the package. If the problem persists, manually locate the cause:"
+echo "如果包安装失败,请手动运行以下命令安装,如果还是不行,请手动查找原因:"
 echo "opkg install libustream-openssl"
 echo "opkg install ca-bundle"
 echo "opkg install kmod-tun"
-echo "All three packages are indispensable"
+echo "以上三个包缺一不可"
 
 # 下载安装包
 wget --tries=5 -c -t 60 https://raw.githubusercontent.com/CH3NGYZ/tailscale-openwrt/main/tailscale-openwrt.tgz
@@ -48,7 +48,7 @@ ls /etc/rc.d/*tailscale*
 #启动
 # /etc/init.d/tailscale start
 /etc/rc.d/S90tailscale start
-echo "Please wait, the timeout time is three minutes, the Tailscaled service is downloading the Tailscale executable file in the background..."
+echo "请等待,超时时间为三分钟, Tailscaled 服务正在后台下载 Tailscale 可执行文件..."
 
 start_time=$(date +%s)
 timeout=180  # 3分钟的超时时间
@@ -61,7 +61,7 @@ while true; do
         current_time=$(date +%s)
         elapsed_time=$((current_time - start_time))
         if [ $elapsed_time -ge $timeout ]; then
-            echo "The script has timed out. Please manually open the Syslog to see the reason for the failure."
+            echo "超时，退出脚本,请手动打开luci界面-系统日志查看失败原因,也可运行 tailscale 查看下载情况"
             exit 1
         else
             sleep 2
@@ -69,7 +69,7 @@ while true; do
     fi
 done
 
-echo "If the login fails, check the background service running status by running /etc/init.d/tailscaled status"
+echo "如果无法登陆, 请检查后台服务运行状态 /etc/init.d/tailscaled status"
 tailscale up
 tailscale up
-echo "The current machine architecture is arch_:${arch_}${endianness} | arch:${arch} . If it works successfully, leave a comment on this issue so that the author can revise the documentation in time: https://github.com/CH3NGYZ/tailscale-openwrt/issues/6"
+echo "当前机器的架构是 arch_:${arch_}${endianness} | arch:${arch}，如果成功运行，请在这个issue留下评论以便作者及时修改说明文档：https://github.com/CH3NGYZ/tailscale-openwrt/issues/6。如架构已验证,您可不必再留言。"
